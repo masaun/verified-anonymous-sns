@@ -3,3 +3,6 @@ build/
 MoproAndroidBindings/
 MoproiOSBindings/
 .DS_Store
+
+# Environment files
+.env
