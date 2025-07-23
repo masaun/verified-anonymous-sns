@@ -1,0 +1,11 @@
+target_adapters = []
+target_platforms = ["ios"]
+ios = [
+    "x86_64-apple-ios",
+    "aarch64-apple-ios",
+    "aarch64-apple-ios-sim",
+]
+android = [
+    "aarch64-linux-android",
+    "x86_64-linux-android",
+]
