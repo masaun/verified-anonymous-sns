@@ -1,9 +1,9 @@
-build_mode = "debug"
+build_mode = "release"
 target_adapters = []
 target_platforms = ["ios"]
 ios = [
-    "aarch64-apple-ios-sim",
     "x86_64-apple-ios",
+    "aarch64-apple-ios-sim",
     "aarch64-apple-ios",
 ]
 android = [
