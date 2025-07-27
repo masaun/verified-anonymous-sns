@@ -1,6 +1,10 @@
 # Extract version from Nargo.toml
 rm -rf target
 
+# Align the Noir/Nargo version and bb.js version of the local machine.
+echo "Update the bb.js version of the local machine to v0.85.0..."
+bbup --version 0.85.0
+
 echo "Compiling circuit..."
 if ! nargo compile; then
     echo "Compilation failed. Exiting..."
