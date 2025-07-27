@@ -47,7 +47,7 @@ byteorder = "1.5.0"
 
 
 # build for iOS
-# noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg"] }
+#noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg"] }
 
 [build-dependencies]
 mopro-ffi = { git = "https://github.com/zkmopro/mopro.git" }
