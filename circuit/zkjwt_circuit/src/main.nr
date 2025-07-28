@@ -1,7 +1,11 @@
 mod zkjwt;
 
+use zkjwt::{
+    utils::{decimal_string_to_field, get_domain_start_index_in_email},
+    nullifier_generator::{generate_nullifier},
+};
+
 use jwt::JWT;
-use zkjwt::utils::{decimal_string_to_field, get_domain_start_index_in_email};
 use std::hash::poseidon2::Poseidon2;
 
 global MAX_PARTIAL_DATA_LENGTH: u32 = 640; // signed data length after partial SHA
@@ -41,7 +45,7 @@ fn main(
     ephemeral_pubkey: pub Field,
     ephemeral_pubkey_salt: Field,
     ephemeral_pubkey_expiry: pub u32,
-) {
+) -> pub Field {
     // Init JWT struct and verify signature
     let jwt = JWT::init_with_partial_hash(
         partial_data,
@@ -80,4 +84,10 @@ fn main(
     for i in 0..MAX_DOMAIN_LENGTH {
         assert(email.storage()[domain_start_index + i] == domain.storage()[i], "invalid domain");
     }
+
+    // @dev - Calculate a nullifier
+    let nullifier = generate_nullifier([ephemeral_pubkey_hash, full_data_length as Field, base64_decode_offset as Field]);
+
+    // @dev - Return the nullifier
+    nullifier
 }
