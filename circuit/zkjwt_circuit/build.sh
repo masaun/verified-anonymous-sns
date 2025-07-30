@@ -21,18 +21,27 @@ fi
 echo "Gate count:"
 bb gates -b target/verified_anonymous_sns_jwt.json | jq  '.functions[0].circuit_size'
 
-# Create version-specific directory
-#mkdir -p "../app/assets/jwt"
+#echo "Create version-specific directory"
 
-echo "Copying verified_anonymous_sns_jwt.json to ./circuit..."
-#echo "Copying circuit.json to app/assets/jwt..."
+echo "Create the target/vk directory..."
+mkdir -p "target/vk"
+
+echo "Copying verified_anonymous_sns_jwt.json and paste to the ./circuit directory..."
 cp target/verified_anonymous_sns_jwt.json "../verified_anonymous_sns_jwt.json"
-#cp target/verified_anonymous_sns_jwt.json "../app/assets/jwt/circuit.json"
 
-echo "Generating vkey..."
-bb write_vk -b ./target/verified_anonymous_sns_jwt.json -o ./target
+echo "Generating vkey in the ./target/vk directory..."
+bb write_vk -b ./target/verified_anonymous_sns_jwt.json -o ./target/vk --oracle_hash keccak
 
 #echo "Generating vkey.json to app/assets/jwt..."
 #node -e "const fs = require('fs'); fs.writeFileSync('../app/assets/jwt/circuit-vkey.json', JSON.stringify(Array.from(Uint8Array.from(fs.readFileSync('./target/vk')))));"
+
+echo "Generate a Solidity Verifier contract from the vkey..."
+bb write_solidity_verifier -k ./target/vk/vk -o ./target/Verifier.sol
+
+echo "Copy a Solidity Verifier contract-generated (Verifier.sol) into the ./contracts/src/circuits/zk-jwt/honk-verifier directory"
+cp ./target/Verifier.sol ../../contracts/src/circuits/zk-jwt/honk-verifier
+
+echo "Rename the Verifier.sol with the honk_vk.sol in the ./contracts/circuit/ultra-verifier directory"
+mv ../../contracts/src/circuits/zk-jwt/honk-verifier/Verifier.sol ../../contracts/src/circuits/zk-jwt/honk-verifier/honk_vk.sol
 
 echo "Done"
