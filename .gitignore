@@ -6,3 +6,7 @@ MoproiOSBindings/
 
 # Environment files
 .env
+
+# Smart contracts
+out/
+cache/
