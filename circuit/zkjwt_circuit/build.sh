@@ -1,4 +1,8 @@
 # Extract version from Nargo.toml
+VERSION=$(grep '^version = ' Nargo.toml | cut -d '"' -f 2)
+echo "Circuit version: $VERSION"
+
+# Extract version from Nargo.toml
 rm -rf target
 
 # Align the Noir/Nargo version and bb.js version of the local machine.
