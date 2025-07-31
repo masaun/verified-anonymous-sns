@@ -1,7 +1,8 @@
 [package]
 name = "test_zkjwt_contracts"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+#edition = "2021"
 
 [lib]
 name = "test_zkjwt_contracts"
@@ -18,7 +19,8 @@ path = "test/circuits/zk-jwt/honk-verifier/test_honk_verifier.rs"
 [dependencies]
 tokio = { version = "1.0", features = ["full"] }
 eyre = "0.6"
-alloy = "1.0.9"
+# Now using latest alloy with edition 2024 support
+alloy = { version = "1.0", features = ["full"] }
 # Note: Alloy requires edition2024 support. 
 # To use Alloy, upgrade to Rust nightly or wait for stable edition2024 support
 # alloy = { version = "0.3", features = ["full"] }
