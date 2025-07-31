@@ -10,3 +10,6 @@ MoproiOSBindings/
 # Smart contracts
 out/
 cache/
+
+# Smart contracts test
+Cargo.lock
