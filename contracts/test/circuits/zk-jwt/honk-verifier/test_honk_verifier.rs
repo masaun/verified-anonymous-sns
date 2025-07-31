@@ -7,11 +7,20 @@ use std::sync::Arc;
 
 // 1. Define the Solidity interface using alloy::sol!
 sol! {
-    // contract SimpleStorage {
-    //     function set(uint256 _value) external;
-    //     function get() external view returns (uint256);
-    // }
+    contract HonkVerifier {
+        function verify(bytes calldata proof, bytes32[] calldata publicInputs) external view returns (bool);
+    }
 }
+
+// contract HonkVerifier is BaseHonkVerifier(N, LOG_N, NUMBER_OF_PUBLIC_INPUTS) {
+//      function loadVerificationKey() internal pure override returns (Honk.VerificationKey memory) {
+//        return HonkVerificationKey.loadVerificationKey();
+//     }
+// }
+//
+// function verify(bytes calldata proof, bytes32[] calldata publicInputs) public view override returns (bool) {
+
+
 
 #[tokio::test]
 async fn test_honk_verifier() -> eyre::Result<()> {
