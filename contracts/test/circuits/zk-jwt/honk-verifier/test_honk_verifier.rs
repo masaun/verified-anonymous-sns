@@ -3,6 +3,7 @@ use alloy::signers::local::{PrivateKeySigner, LocalSigner};
 use alloy::sol;
 use alloy::contract::ContractInstance;
 use alloy::primitives::{Address, U256};
+use alloy_node_bindings::Anvil;
 use std::sync::Arc;
 
 // 1. Define the Solidity interface using alloy::sol!
@@ -24,9 +25,9 @@ sol! {
 
 #[tokio::test]
 async fn test_honk_verifier() -> eyre::Result<()> {
-    // // 2. Start Anvil (local test network) - Updated for Alloy 1.0
-    // let anvil = alloy::node_bindings::Anvil::new().spawn();
-    // let provider = ProviderBuilder::new().on_http(anvil.endpoint_url());
+    // 2. Start Anvil (local test network) - Updated for Alloy 1.0
+    let anvil = Anvil::new().spawn();
+    let provider = ProviderBuilder::new().on_http(anvil.endpoint_url());
 
     // // 3. Create a signer from private key - Updated for Alloy 1.0
     // let signer = PrivateKeySigner::from_slice(&anvil.keys()[0].to_bytes())?;
