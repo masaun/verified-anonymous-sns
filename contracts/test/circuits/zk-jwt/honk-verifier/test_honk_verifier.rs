@@ -1,8 +1,8 @@
 use alloy::providers::{Provider, ProviderBuilder};
-use alloy::signers::{LocalWallet, Signer};
+use alloy::signers::local::{PrivateKeySigner, LocalSigner};
 use alloy::sol;
 use alloy::contract::ContractInstance;
-use alloy::types::{Address, U256};
+use alloy::primitives::{Address, U256};
 use std::sync::Arc;
 
 // 1. Define the Solidity interface using alloy::sol!
@@ -24,33 +24,24 @@ sol! {
 
 #[tokio::test]
 async fn test_honk_verifier() -> eyre::Result<()> {
-    // // 2. Start Anvil with a known mnemonic or default
-    // let anvil = alloy::rpc::testutils::spawn_anvil().await?;
-    // let url = anvil.endpoint();
-    // let provider = ProviderBuilder::new().on_http(&url)?;
+    // // 2. Start Anvil (local test network) - Updated for Alloy 1.0
+    // let anvil = alloy::node_bindings::Anvil::new().spawn();
+    // let provider = ProviderBuilder::new().on_http(anvil.endpoint_url());
 
-    // // 3. Use the default private key
-    // let wallet: LocalWallet = anvil.keys()[0].clone().into();
-    // let chain_id = provider.get_chain_id().await?;
-    // let wallet = wallet.with_chain_id(chain_id);
-    // let client = Arc::new(provider.with_signer(wallet.clone()));
+    // // 3. Create a signer from private key - Updated for Alloy 1.0
+    // let signer = PrivateKeySigner::from_slice(&anvil.keys()[0].to_bytes())?;
+    // let provider = provider.with_signer(signer);
 
-    // // 4. Deploy the contract bytecode (you must have compiled first)
-    // let bytecode = std::fs::read("out/SimpleStorage.sol/SimpleStorage.bin")?;
-    // let abi_path = "out/SimpleStorage.sol/SimpleStorage.abi.json";
+    // // 4. Deploy contract (you'll need the actual HonkVerifier bytecode and ABI)
+    // // let bytecode = std::fs::read("out/HonkVerifier.sol/HonkVerifier.bin")?;
+    // // let contract = HonkVerifier::deploy(&provider, ()).await?;
 
-    // let factory = alloy::contract::ContractFactory::new_from_json_file(abi_path, bytecode.into(), client.clone())?;
-    // let contract = factory.deploy(())?.send().await?;
+    // // 5. Test the verify function with your proof and public inputs
+    // // let proof = vec![]; // Your actual proof bytes
+    // // let public_inputs = vec![]; // Your actual public inputs
+    // // let result = contract.verify(proof.into(), public_inputs).call().await?;
+    // // assert!(result);
 
-    // // 5. Call `set` and verify `get`
-    // let instance = ContractInstance::<SimpleStorage>::new(contract.address(), client.clone());
-
-    // let tx = instance.set(U256::from(42)).send().await?.await_receipt().await?;
-    // assert!(tx.is_some());
-
-    // let value = instance.get().call().await?;
-    // assert_eq!(value, U256::from(42));
-
-    // println!("✅ Storage value is: {}", value);
+    println!("✅ Honk verifier test placeholder - implement your specific test logic");
     Ok(())
 }

@@ -5,6 +5,7 @@
 
 - Run the all smart contract tests
 ```bash
+cd contracts
 cargo test
 ```
 
@@ -12,5 +13,6 @@ cargo test
 
 - Run the `test_honk_verifier.rs`
 ```bash
+cd contracts
 cargo test --test test_honk_verifier
 ```
