@@ -31,10 +31,10 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     let provider = ProviderBuilder::new().on_http(anvil.endpoint_url());
 
     // 3. Test that we can read the contract artifact
-    let contract_json = std::fs::read_to_string("out/honk_vk.sol/HonkVerifier.json")?;
-    let contract_artifact: serde_json::Value = serde_json::from_str(&contract_json)?;
+    let honk_verifier_contract_json = std::fs::read_to_string("out/honk_vk.sol/HonkVerifier.json")?;
+    let honk_verifier_contract_artifact: serde_json::Value = serde_json::from_str(&honk_verifier_contract_json)?;
     
-    let bytecode_hex = contract_artifact["bytecode"]["object"]
+    let bytecode_hex = honk_verifier_contract_artifact["bytecode"]["object"]
         .as_str()
         .ok_or_else(|| eyre::eyre!("Failed to get bytecode from contract artifact"))?;
     
