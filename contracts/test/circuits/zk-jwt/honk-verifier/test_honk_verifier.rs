@@ -19,9 +19,9 @@ use noir::{
 
 // 1. Define the Solidity interface using alloy::sol!
 sol! {
-    contract HonkVerifier {
-        function verify(bytes calldata proof, bytes32[] calldata publicInputs) external view returns (bool);
-    }
+    #[sol(rpc)]
+    HonkVerifier,
+    "out/honk_vk.sol/HonkVerifier.json"
 }
 
 // contract HonkVerifier is BaseHonkVerifier(N, LOG_N, NUMBER_OF_PUBLIC_INPUTS) {
@@ -81,7 +81,16 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     // 5. Create a contract instance and test it
     // Note: The sol! macro generates bindings differently in Alloy 1.0
     // TODO: Fix contract instantiation for Alloy 1.0
-    // let honk_verifier = HonkVerifier::new(contract_address, &provider);
+    // In Alloy 1.0, the sol! macro doesn't generate a `new` function like this
+    // Need to use the correct API for contract instantiation
+    // 
+    // Correct approach for Alloy 1.0 (research needed):
+    // - Use contract instance creation with deployed address
+    // - Call contract methods through the generated interface
+    // - Example: let contract = HonkVerifier::new(contract_address, provider.clone());
+    //
+    let honk_verifier = HonkVerifier::new(contract_address, &provider);
+    println!("📝 Contract address for future use: {:?}", contract_address);
     
     // For testing, use empty proof and public inputs
     let _proof = Bytes::from_hex("0x")?;     // Empty proof for testing
