@@ -1,19 +1,4 @@
-# Stealthnote Mobile
-
-<p align="center">
-<a href="https://testflight.apple.com/join/8hqYwe8C"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
-alt="Demo of the Nextcloud iOS files app"
-height="40"></a>
-<a href="https://drive.google.com/file/d/1IMsH0fBpaLGkFgFX0oqnlS6LQk3WCr3t/view?usp=sharing"><img src="https://i.imgur.com/kct14sr.png"
-alt="Demo of the Nextcloud iOS files app"
-height="40"></a>
-</p>
-
-This project is inspired by [stealthnote.xyz](https://stealthnote.xyz). Our goal is to build on the core idea of StealthNote while significantly enhancing performance and user experience using [Mopro](https://zkmopro.org). By leveraging native execution, our implementation achieves at least **~10×** faster performance compared to the browser-based version — as demonstrated in our [benchmarks](#-benchmarks).
-
-## 📺 Demo video
-
-[![Watch the video](https://img.youtube.com/vi/ngUAfYgLj0M/maxresdefault.jpg)](https://www.youtube.com/watch?v=ngUAfYgLj0Ms)
+# Verified Anonymous SNS
 
 ## 🎯 Features
 
@@ -114,17 +99,7 @@ Follow the instructions to open the development tools
     flutter run
     ```
 
-## Markdown Support
-
-Stealthnote Mobile supports a variety of Markdown features for rich text formatting in your notes. You can use common Markdown syntax to create headers, lists, bold and italic text, links, and more.
-
-Below is an example of how Markdown is rendered in the app:
-
-<p align="center">
- <a href="https://i.imgur.com/vcfzPmT.png"><img src="https://i.imgur.com/vcfzPmT.png" alt="Markdown Example" width="300"/></a>
-    <br>
-    <em>Stealthnote Mobile Support Markdown</em>
-</p>
+<br>
 
 ## 📊 Benchmarks
 
@@ -136,3 +111,9 @@ The following benchmarks were conducted on iPhone and Android in release mode:
 | Desktop (Mac M1 Pro)       | 2.02 s   | 0.007 s |
 | Android emulator (Pixel 8) | 4.786 s  | 3.013 s |
 | iPhone 16 Pro              | 2.626 s  | 1.727 s |
+
+<br>
+
+## NOTE
+
+- This project is inspired by the [stealthnote-mobile](https://github.com/vivianjeng/stealthnote-mobile)
