@@ -1,7 +1,10 @@
-use alloy::providers::ProviderBuilder;
+use alloy::providers::{Provider, ProviderBuilder};
+use alloy::signers::local::PrivateKeySigner;
 use alloy::sol;
 use alloy::primitives::Bytes;
 use alloy::hex::FromHex;
+use alloy::rpc::types::TransactionRequest;
+use alloy::network::TransactionBuilder;
 use alloy_node_bindings::Anvil;
 
 // 1. Define the Solidity interface using alloy::sol!
@@ -25,7 +28,17 @@ sol! {
 async fn test_honk_verifier() -> eyre::Result<()> {
     // 2. Start Anvil (local test network)
     let anvil = Anvil::new().spawn();
-    let provider = ProviderBuilder::new().connect_http(anvil.endpoint_url()); // @dev - anvil.endpoint_url() is "http://localhost:50482"
+    println!("✅ Anvil running at: {}", anvil.endpoint());
+
+    // Create a signer using one of Anvil's default private keys
+    let signer: PrivateKeySigner = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80".parse()?;
+    let wallet = signer.clone();
+    
+    // Create provider with wallet  
+    let provider = ProviderBuilder::new()
+        .with_gas_estimation()
+        .wallet(wallet)
+        .on_http(anvil.endpoint_url());
 
     // 3. Test that we can read the contract artifact
     let honk_verifier_contract_json = std::fs::read_to_string("out/honk_vk.sol/HonkVerifier.json")?;
@@ -36,21 +49,30 @@ async fn test_honk_verifier() -> eyre::Result<()> {
         .ok_or_else(|| eyre::eyre!("Failed to get bytecode from contract artifact"))?;
     
     // Verify we can parse the bytecode
-    let _bytecode = Bytes::from_hex(bytecode_hex)?;
+    let bytecode = Bytes::from_hex(bytecode_hex)?;
     
     println!("✅ Successfully parsed contract artifact");
     println!("✅ Bytecode length: {} characters", bytecode_hex.len());
     
-    // 4. Test deployment success
-    println!("✅ Anvil running at: {}", anvil.endpoint());
+    // 4. Deploy the contract using the bytecode
+    let deploy_tx = TransactionRequest::default().with_deploy_code(bytecode);
+    let receipt = provider.send_transaction(deploy_tx).await?.get_receipt().await?;
+    let contract_address = receipt.contract_address.expect("Contract deployment failed");
     
-    // For actual deployment and testing, you would:
-    // 1. Add a signer to the provider
-    // 2. Deploy the contract with the bytecode
-    // 3. Create a contract instance and call verify()
+    println!("✅ Contract deployed successfully at: {:?}", contract_address);
 
-    // For now, we'll just test the basic setup without instantiating the contract
-    // TODO: Implement proper contract deployment and instantiation
+    // 5. Create a contract instance and test it
+    // Note: The sol! macro generates bindings differently in Alloy 1.0
+    // TODO: Fix contract instantiation for Alloy 1.0
+    // let honk_verifier = HonkVerifier::new(contract_address, &provider);
+    
+    // For testing, use empty proof and public inputs
+    let _proof = Bytes::from_hex("0x")?;     // Empty proof for testing
+    let _public_inputs: Vec<Bytes> = vec![]; // Empty public inputs for testing
+    
+    // Note: This will likely fail with empty data, but tests the interface
+    // let is_valid = honk_verifier.verify(proof, public_inputs).call().await?;
+    // println!("✅ Verification result: {}", is_valid);
     
     println!("✅ Honk verifier setup test completed successfully");
     Ok(())
