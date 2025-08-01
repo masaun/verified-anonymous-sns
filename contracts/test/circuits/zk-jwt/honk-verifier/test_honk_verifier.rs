@@ -7,6 +7,16 @@ use alloy::rpc::types::TransactionRequest;
 use alloy::network::TransactionBuilder;
 use alloy_node_bindings::Anvil;
 
+// @dev - Noir
+use noir::{
+    barretenberg::{
+        prove::prove_ultra_honk, srs::setup_srs_from_bytecode, utils::get_honk_verification_key,
+        verify::verify_ultra_honk,
+    },
+    witness::from_vec_str_to_witness_map,
+};
+
+
 // 1. Define the Solidity interface using alloy::sol!
 sol! {
     contract HonkVerifier {
