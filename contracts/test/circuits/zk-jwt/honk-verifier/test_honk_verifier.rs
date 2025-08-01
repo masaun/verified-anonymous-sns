@@ -32,12 +32,12 @@ async fn test_honk_verifier() -> eyre::Result<()> {
 
     // Create a signer using one of Anvil's default private keys
     let signer: PrivateKeySigner = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80".parse()?;
-    let wallet = signer.clone();
+    let signer_clone = signer.clone();
     
     // Create provider with wallet  
     let provider = ProviderBuilder::new()
         .with_gas_estimation()
-        .wallet(wallet)
+        .wallet(signer_clone)
         .on_http(anvil.endpoint_url());
 
     // 3. Test that we can read the contract artifact
