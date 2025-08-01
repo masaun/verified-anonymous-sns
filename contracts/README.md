@@ -1,0 +1,20 @@
+# Smart Contracts
+
+
+## Smart Contract Test in `Rust` using `Alloy.rs`
+
+- Run the all smart contract tests
+```bash
+cd contracts
+cargo test
+```
+
+<br>
+
+- Run the `test_honk_verifier.rs`
+```bash
+cd contracts
+sh test/circuits/zk-jwt/honk-verifier/test_honk_verifier.sh
+
+(Or, cargo test --test test_honk_verifier -- --show-output)
+```

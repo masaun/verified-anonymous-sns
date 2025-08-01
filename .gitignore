@@ -6,3 +6,10 @@ MoproiOSBindings/
 
 # Environment files
 .env
+
+# Smart contracts
+out/
+cache/
+
+# Smart contracts test
+Cargo.lock
