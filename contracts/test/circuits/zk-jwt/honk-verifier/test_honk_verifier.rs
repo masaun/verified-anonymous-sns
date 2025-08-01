@@ -1,7 +1,7 @@
 use alloy::providers::{Provider, ProviderBuilder};
 use alloy::signers::local::PrivateKeySigner;
 use alloy::sol;
-use alloy::primitives::Bytes;
+use alloy::primitives::{Bytes, FixedBytes};
 use alloy::hex::FromHex;
 use alloy::rpc::types::TransactionRequest;
 use alloy::network::TransactionBuilder;
@@ -94,12 +94,11 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     
     // For testing, use empty proof and public inputs
     let _proof = Bytes::from_hex("0x")?;     // Empty proof for testing
-    let _public_inputs: Vec<Bytes> = vec![]; // Empty public inputs for testing
+    let _public_inputs: Vec<FixedBytes<32>> = vec![]; // Empty public inputs for testing
     
-    // Note: This will likely fail with empty data, but tests the interface
-    // TODO: Uncomment when contract instantiation is fixed
-    // let is_valid = honk_verifier.verify(_proof, _public_inputs).call().await?;
-    // println!("✅ Verification result: {}", is_valid);
+    // [TODO]: Add the actual value to both _proof and _public_inputs. (Currently, an empty value is stored into both)
+    let is_valid = honk_verifier.verify(_proof, _public_inputs).call().await?;
+    println!("✅ Verification result: {}", is_valid);
     
     println!("✅ Honk verifier setup test completed successfully");
     Ok(())
