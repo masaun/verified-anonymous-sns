@@ -14,5 +14,7 @@ cargo test
 - Run the `test_honk_verifier.rs`
 ```bash
 cd contracts
-cargo test --test test_honk_verifier
+sh test/circuits/zk-jwt/honk-verifier/test_honk_verifier.sh
+
+(Or, cargo test --test test_honk_verifier -- --show-output)
 ```
