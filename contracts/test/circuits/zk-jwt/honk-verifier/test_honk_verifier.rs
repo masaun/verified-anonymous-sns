@@ -1,10 +1,7 @@
-use alloy::providers::{Provider, ProviderBuilder};
-use alloy::signers::local::PrivateKeySigner;
+use alloy::providers::ProviderBuilder;
 use alloy::sol;
 use alloy::primitives::Bytes;
 use alloy::hex::FromHex;
-use alloy::rpc::types::TransactionRequest;
-use alloy::network::TransactionBuilder;
 use alloy_node_bindings::Anvil;
 
 // 1. Define the Solidity interface using alloy::sol!
@@ -28,7 +25,7 @@ sol! {
 async fn test_honk_verifier() -> eyre::Result<()> {
     // 2. Start Anvil (local test network)
     let anvil = Anvil::new().spawn();
-    let provider = ProviderBuilder::new().on_http(anvil.endpoint_url());
+    let provider = ProviderBuilder::new().connect_http(anvil.endpoint_url()); // @dev - anvil.endpoint_url() is "http://localhost:50482"
 
     // 3. Test that we can read the contract artifact
     let honk_verifier_contract_json = std::fs::read_to_string("out/honk_vk.sol/HonkVerifier.json")?;
@@ -51,6 +48,9 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     // 1. Add a signer to the provider
     // 2. Deploy the contract with the bytecode
     // 3. Create a contract instance and call verify()
+
+    // For now, we'll just test the basic setup without instantiating the contract
+    // TODO: Implement proper contract deployment and instantiation
     
     println!("✅ Honk verifier setup test completed successfully");
     Ok(())
