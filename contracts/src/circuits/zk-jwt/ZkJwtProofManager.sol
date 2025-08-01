@@ -11,7 +11,6 @@ contract ZkJwtProofManager {
 
     ZkJwtProofVerifier public zkJwtProofVerifier;
 
-
     // @dev - Storages
     mapping(bytes32 nullifierHash => DataType.PublicInput) public publicInputsOfZkJwtProofs;  // nullifierHash -> PublicInput    
     mapping(bytes32 nullifierHash => bool isNullified) public nullifiers;
