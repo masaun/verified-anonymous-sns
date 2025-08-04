@@ -29,6 +29,9 @@ alloy-node-bindings = "1.0"
 # For parsing contract artifacts
 serde_json = "1.0"
 
+# To access the proof/input generation functions of the parent crate (./src/proof/) directory.
+mopro-zkemail-nr = { path = "../" }
+
 # Note: Alloy requires edition2024 support. 
 # To use Alloy, upgrade to Rust nightly or wait for stable edition2024 support
 # alloy = { version = "0.3", features = ["full"] }
