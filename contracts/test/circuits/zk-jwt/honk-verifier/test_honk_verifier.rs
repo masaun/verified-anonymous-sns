@@ -21,7 +21,12 @@ use alloy_node_bindings::Anvil;
 
 // @dev - Imports the following modules for proof/input generation from the parent crate (./src/proof/) directory.
 // @dev - "mopro_bindings" would be the parent crate "name", which is defined as the "[lib]" in the Cargo.toml of the parent crate directory. 
-use mopro_bindings::proof::jwt_proof::{generate_inputs, generate_jwt_proof};
+use mopro_bindings::proof::jwt_proof::{
+    prepare_public_inputs, 
+    generate_inputs, 
+    generate_jwt_proof, 
+    verify_jwt_proof    // @dev - NOTE: Since we will use the SC verifier, we won't use this function.
+};
 
 
 // 1. Define the Solidity interface using alloy::sol!
