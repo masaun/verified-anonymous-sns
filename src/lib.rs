@@ -19,7 +19,7 @@ use proof::jwt_proof::{generate_inputs, generate_jwt_proof, JsonWebKey, StorageB
 use std::{collections::HashMap, str::FromStr};
 
 mod api_server;
-mod proof;
+pub mod proof;
 
 #[uniffi::export]
 pub fn prove() -> bool {
