@@ -51,12 +51,25 @@ async fn test_proof_generation() -> eyre::Result<()> {
     
     // For now, let's use a simple test to verify the functions are accessible
     // In a real implementation, we would load actual JWT and key data
-    println!("✅ Proof generation functions are accessible from parent crate");
-    println!("💡 Note: Real implementation would load JWT and public key data");
-    println!("💡 Function signatures verified:");
-    println!("   - generate_inputs(jwt: &str, pubkey: &JsonWebKey, sha_precompute_keys: Option<Vec<&str>>, max_signed_data_len: usize)");
-    println!("   - generate_jwt_proof(srs_path: String, inputs: HashMap<String, Vec<String>>)");
-    
+
+
+    // println!("✅ Proof generation functions are accessible from parent crate");
+    // println!("💡 Note: Real implementation would load JWT and public key data");
+    // println!("💡 Function signatures verified:");
+    // println!("   - generate_inputs(jwt: &str, pubkey: &JsonWebKey, sha_precompute_keys: Option<Vec<&str>>, max_signed_data_len: usize)");
+    // println!("   - generate_jwt_proof(srs_path: String, inputs: HashMap<String, Vec<String>>)");
+
+    let jwt: str = "example.jwt.token".into();
+    let pubkey: JsonWebKey = JsonWebKey::from_str("example.public.key").unwrap();
+    let sha_precompute_keys: Option<Vec<str>> = None; // Optional, can be None for now
+    let max_signed_data_len: usize = 1024;
+
+    let srs_path: String = "public/jwt-srs.local".to_string(); // @dev - Path to the SRS file. (NOTE: This path is referenced from the test in the jwt_proof.rs)
+
+    let input_data: Result<JWTCircuitInputs> = generate_inputs(jwt, pubkey, sha_precompute_keys, max_signed_data_len);
+    let proof_data: Vec<u8> = generate_jwt_proof(srs_path, input_data?);
+
+
     println!("✅ Proof generation test completed successfully");
     Ok(())
 }
@@ -68,7 +81,7 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     let anvil = Anvil::new().spawn();
     println!("✅ Anvil running at: {}", anvil.endpoint());
 
-    // Create a signer using one of Anvil's default private keys
+    // Create a signer using one of Anvil's default private keys (NOTE: The PK hardcoded here is just an example PK)
     let signer: PrivateKeySigner = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80".parse()?;
     let signer_clone = signer.clone();
     
