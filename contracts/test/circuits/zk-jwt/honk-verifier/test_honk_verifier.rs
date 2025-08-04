@@ -8,13 +8,15 @@ use noir::{
 };
 
 // @dev - Alloy
-use alloy::providers::{Provider, ProviderBuilder};
-use alloy::signers::local::PrivateKeySigner;
-use alloy::sol;
-use alloy::primitives::{Bytes, FixedBytes};
-use alloy::hex::FromHex;
-use alloy::rpc::types::TransactionRequest;
-use alloy::network::TransactionBuilder;
+use alloy::{
+    providers::{Provider, ProviderBuilder},
+    signers::local::PrivateKeySigner,
+    sol,
+    primitives::{Bytes, FixedBytes},
+    hex::FromHex,
+    rpc::types::TransactionRequest,
+    network::TransactionBuilder,
+};
 use alloy_node_bindings::Anvil;
 
 // @dev - Imports the following modules for proof/input generation from the parent crate (./src/proof/) directory.
