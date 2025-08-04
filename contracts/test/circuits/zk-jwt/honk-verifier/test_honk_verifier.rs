@@ -1,12 +1,3 @@
-use alloy::providers::{Provider, ProviderBuilder};
-use alloy::signers::local::PrivateKeySigner;
-use alloy::sol;
-use alloy::primitives::{Bytes, FixedBytes};
-use alloy::hex::FromHex;
-use alloy::rpc::types::TransactionRequest;
-use alloy::network::TransactionBuilder;
-use alloy_node_bindings::Anvil;
-
 // @dev - Noir
 use noir::{
     barretenberg::{
@@ -16,6 +7,20 @@ use noir::{
     witness::from_vec_str_to_witness_map,
 };
 
+// @dev - Alloy
+use alloy::providers::{Provider, ProviderBuilder};
+use alloy::signers::local::PrivateKeySigner;
+use alloy::sol;
+use alloy::primitives::{Bytes, FixedBytes};
+use alloy::hex::FromHex;
+use alloy::rpc::types::TransactionRequest;
+use alloy::network::TransactionBuilder;
+use alloy_node_bindings::Anvil;
+
+// @dev - Proof generation and verification (and input generation)
+use crate::proof::{
+    jwt_proof::{generate_inputs, generate_jwt_proof},
+};
 
 // 1. Define the Solidity interface using alloy::sol!
 sol! {
