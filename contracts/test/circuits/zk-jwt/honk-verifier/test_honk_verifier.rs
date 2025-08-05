@@ -25,8 +25,7 @@ use mopro_bindings::{
     prove_jwt, // @dev - prove_jwt() is available directly from the root
     proof::jwt_proof::{
         generate_inputs,
-        generate_jwt_proof,
-        verify_jwt,
+        verify_jwt, // @dev - verify_jwt() is in the proof::jwt_proof module
         JsonWebKey,
         JWTCircuitInputs
     },
@@ -78,6 +77,9 @@ async fn test_proof_generation() -> eyre::Result<()> {
     };
 
     let domain = "pse.dev".to_string();
+
+    // Define the SRS path for the proof generation and verification
+    let srs_path: String = "public/jwt-srs.local".to_string(); // @dev - Path to the SRS file
 
     // Now produce the proof as usual
     let pubkey_str = serde_json::to_string(&pubkey).unwrap();
