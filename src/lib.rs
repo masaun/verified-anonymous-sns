@@ -252,7 +252,7 @@ fn encode_domain_field(domain: &str, fixed_len: usize) -> StorageBlock {
 }
 
 #[uniffi::export]
-fn verify_jwt_proof(
+pub fn verify_jwt_proof(
     srs_path: String,
     proof: Vec<u8>,
     domain: String,
