@@ -51,6 +51,12 @@ sol! {
 // function verify(bytes calldata proof, bytes32[] calldata publicInputs) public view override returns (bool) {
 
 #[tokio::test]
+async fn test_generate_ephemeral_key() {
+    let ephemeral_key = generate_ephemeral_key();
+    println!("ephemeral_key: {}", ephemeral_key);
+}
+
+#[tokio::test]
 async fn test_proof_generation() -> eyre::Result<()> {
     // Test proof generation using imported functions from parent crate
     println!("🔄 Starting proof generation...");
@@ -66,7 +72,7 @@ async fn test_proof_generation() -> eyre::Result<()> {
         "17302102366996071265028731047581517700208166805377449770193522591062772282670";
     let ephemeral_salt =
         "646645587996092179008704451306999156519169540151959619716525865713892520";
-    let ephemeral_expiry = "2025-05-07T09:07:57.379Z";
+    let ephemeral_expiry = "2025-09-07T09:07:57.379Z";
 
     // Example public key (this would be fetched from Google's JWKS endpoint in practice)
     let pubkey = JsonWebKey {
@@ -85,6 +91,9 @@ async fn test_proof_generation() -> eyre::Result<()> {
 
     // Now produce the proof as usual
     let pubkey_str = serde_json::to_string(&pubkey).unwrap();
+    println!("pubkey_str: {:?}", pubkey_str);
+
+    // @dev - Generate a new proof
     let proof = prove_jwt( // @dev - prove_jwt() includes both the generate_inputs() and the generate_jwt_proof().
         srs_path.clone(),
         ephemeral_pubkey.to_string(),
@@ -94,10 +103,12 @@ async fn test_proof_generation() -> eyre::Result<()> {
         pubkey_str,
         domain,
     );
+    println!("proof: {:?}", proof);
     assert!(!proof.is_empty(), "Proof should not be empty");
 
     // Call verify_jwt as before
     let verified = verify_jwt(srs_path, proof);
+    println!("verified: {:?}", verified);
     assert!(verified, "JWT proof should verify correctly");
 
 
