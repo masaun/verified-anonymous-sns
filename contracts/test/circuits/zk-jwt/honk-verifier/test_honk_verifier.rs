@@ -61,7 +61,7 @@ async fn test_generate_ephemeral_key() {
     println!("ephemeral_key: {}", ephemeral_key);
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "current_thread")]
 async fn test_proof_generation() -> eyre::Result<()> {
     // Test proof generation using imported functions from parent crate
     println!("🔄 Starting proof generation...");
@@ -118,7 +118,7 @@ async fn test_proof_generation() -> eyre::Result<()> {
 }
 
 
-#[tokio::test]
+#[tokio::test(flavor = "current_thread")]
 async fn test_honk_verifier() -> eyre::Result<()> {
     // 1. Generate a proof
     let proof = generation_proof().await?;
