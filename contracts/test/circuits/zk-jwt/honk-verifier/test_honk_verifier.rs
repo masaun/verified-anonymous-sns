@@ -69,10 +69,10 @@ async fn test_proof_generation() -> eyre::Result<()> {
     //let jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.example";
 
     let ephemeral_pubkey =
-        "17302102366996071265028731047581517700208166805377449770193522591062772282670";
+        "104632289316985982192388871134103343051609197817608328239779951194180755624811";
     let ephemeral_salt =
-        "646645587996092179008704451306999156519169540151959619716525865713892520";
-    let ephemeral_expiry = "2025-09-07T09:07:57.379Z";
+        "899783221154578309625392956639321858584745631388200288157276330883448417";
+    let ephemeral_expiry = "2025-08-12T02:57:07.501Z";
 
     // Example public key (this would be fetched from Google's JWKS endpoint in practice)
     let pubkey = JsonWebKey {
