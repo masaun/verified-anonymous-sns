@@ -128,7 +128,9 @@ pub fn generate_inputs(
 }
 
 pub fn generate_jwt_proof(srs_path: String, inputs: HashMap<String, Vec<String>>) -> Vec<u8> {
-    const JWT_JSON: &str = include_str!("../../circuit/stealthnote_jwt.json");
+    const JWT_JSON: &str = include_str!("../../circuit/verified_anonymous_sns_jwt.json");
+    //const JWT_JSON: &str = include_str!("../../circuit/stealthnote_jwt.json");
+
     let bytecode_json: serde_json::Value = serde_json::from_str(&JWT_JSON).unwrap();
     let bytecode = bytecode_json["bytecode"].as_str().unwrap();
 
