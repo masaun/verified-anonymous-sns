@@ -87,11 +87,11 @@ async fn test_proof_generation() -> eyre::Result<()> {
     let domain = "pse.dev".to_string();
 
     // Define the SRS path for the proof generation and verification
-    let srs_path: String = "public/jwt-srs.local".to_string(); // @dev - Path to the SRS file
+    let srs_path: String = "../public/jwt-srs.local".to_string(); // @dev - Path to the SRS file (relative to contracts dir)
 
     // Now produce the proof as usual
     let pubkey_str = serde_json::to_string(&pubkey).unwrap();
-    println!("pubkey_str: {:?}", pubkey_str);
+    //println!("pubkey_str: {:?}", pubkey_str);
 
     // @dev - Generate a new proof
     let proof = prove_jwt( // @dev - prove_jwt() includes both the generate_inputs() and the generate_jwt_proof().
