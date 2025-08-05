@@ -60,9 +60,6 @@ async fn test_generate_ephemeral_key() {
 async fn test_proof_generation() -> eyre::Result<()> {
     // Test proof generation using imported functions from parent crate
     println!("🔄 Starting proof generation...");
-    
-    // For now, let's use a simple test to verify the functions are accessible
-    // In a real implementation, we would load actual JWT and key data
 
     // Example JWT token (this would be a real JWT in practice)
     let id_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjA3YjgwYTM2NTQyODUyNWY4YmY3Y2QwODQ2ZDc0YThlZTRlZjM2MjUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMDA2NzAxMjkzNzQ4LTFpcm1ndTkxMHAybjd2am1vYTQ0MXJhbW02ZGNydmViLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiMTAwNjcwMTI5Mzc0OC0xaXJtZ3U5MTBwMm43dmptb2E0NDFyYW1tNmRjcnZlYi5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsInN1YiI6IjEwODUyMjA3NzcyMTgyNjQzOTM2NCIsImhkIjoicHNlLmRldiIsImVtYWlsIjoidml2aWFuamVuZ0Bwc2UuZGV2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5vbmNlIjoiNjIyNjE4NzE4OTI2NDIwNDg2NDk4MTI3MDAxMDcxODU2NTA0MzIyNDkyNjUwNjU2MjgzOTM2NTk2NDc3ODY5OTY1NDU5ODg3NTQ2IiwibmJmIjoxNzQ2MDAzNzgwLCJpYXQiOjE3NDYwMDQwODAsImV4cCI6MTc0NjAwNzY4MCwianRpIjoiZmZhNGNhMWQ1NDZlZGZlOWI1Mjc0NDY3ZTE5ODJhOTgyMTU5MjRkOSJ9.naERF4rIB5L3a6I3FBC--_b25O2P6zbymSKkXHgOy44PvZU1LLSQ5ORzxHT93YIpbSzx5eF_FAMuXeN9uwLPrpFRw5Zlt9RlrbfQVNHZj1izHxj0IEYBudGESMRKjef7vfvtsYm_s_iHwE5M6H9UATi9xJw4U34iVn664xZFxhtdqbvCXW-YrjNliNK7dSEKAdHgi4MxiASlHXishGVwmFwe116c3HfEcyAJMxv9pGZEhmh4IZ7jVuwiUFEjroZ7svpGLiNx1grEnqGCJa8gcHEI4t1Lpip9d9CMuEctudLiH0Bk_bFofV-s-VvEOdFfEW8WYdE_YhKS0G9qYnevlQ";
@@ -110,17 +107,6 @@ async fn test_proof_generation() -> eyre::Result<()> {
     let verified = verify_jwt(srs_path, proof);
     println!("verified: {:?}", verified);
     assert!(verified, "JWT proof should verify correctly");
-
-
-    
-    // let sha_precompute_keys: Option<Vec<&str>> = None; // Optional, can be None for now
-    // let max_signed_data_len: usize = 1024;
-
-    // let srs_path: String = "public/jwt-srs_example.local".to_string(); // @dev - Path to the SRS file. (NOTE: This path is referenced from the test in the jwt_proof.rs)
-
-    // // NOTE: The "Result" type would need to include both "success" and "error" types
-    // let input_data: Result<JWTCircuitInputs, anyhow::Error> = generate_inputs(jwt, &pubkey, sha_precompute_keys, max_signed_data_len);
-    
 
     println!("✅ Proof generation test completed successfully");
     Ok(())
