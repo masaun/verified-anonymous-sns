@@ -19,7 +19,7 @@ use proof::jwt_proof::{generate_inputs, generate_jwt_proof, JsonWebKey, StorageB
 use std::{collections::HashMap, str::FromStr};
 
 mod api_server;
-pub mod proof;
+pub mod proof;  // @dev - Expose the proof module for FFI and the smart contract tests.
 
 #[uniffi::export]
 pub fn prove() -> bool {
@@ -252,7 +252,7 @@ fn encode_domain_field(domain: &str, fixed_len: usize) -> StorageBlock {
 }
 
 #[uniffi::export]
-fn verify_jwt_proof(
+pub fn verify_jwt_proof(
     srs_path: String,
     proof: Vec<u8>,
     domain: String,
