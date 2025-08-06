@@ -358,7 +358,7 @@ fn reconstruct_honk_proof(public_inputs: &[u8], proof: &[u8], field_byte_size: u
     result
 }
 
-fn prepare_public_inputs(
+pub fn prepare_public_inputs(
     jwt_pubkey: BigUint,
     domain: String,
     ephemeral_pubkey: BigUint,

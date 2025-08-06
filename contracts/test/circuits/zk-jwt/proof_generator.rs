@@ -26,6 +26,7 @@ use mopro_bindings::{
     prove_jwt, // @dev - prove_jwt() is available directly from the root
     verify_jwt_proof,
     proof::jwt_proof::{
+        prepare_public_inputs,
         generate_inputs,
         verify_jwt, // @dev - verify_jwt() is in the proof::jwt_proof module
         JsonWebKey,
@@ -33,6 +34,10 @@ use mopro_bindings::{
     },
 };
 use std::collections::HashMap;
+use num_bigint::BigUint;
+use chrono::{DateTime, Utc};
+use std::str::FromStr;
+use base64;
 
 
 // 1. Define the Solidity interface using alloy::sol!
@@ -50,7 +55,7 @@ sol! {
 //
 // function verify(bytes calldata proof, bytes32[] calldata publicInputs) public view override returns (bool) {
 
-pub async fn generate_proof() -> Vec<u8> {
+pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
     // Test proof generation using imported functions from parent crate
     println!("🔄 Starting proof generation...");
 
@@ -91,7 +96,7 @@ pub async fn generate_proof() -> Vec<u8> {
         ephemeral_expiry.to_string(),
         id_token.to_string(),
         pubkey_str,
-        domain,
+        domain.clone(),
     );
     println!("proof: {:?}", proof);
     assert!(!proof.is_empty(), "Proof should not be empty");
@@ -101,6 +106,36 @@ pub async fn generate_proof() -> Vec<u8> {
     println!("verified: {:?}", verified);
     assert!(verified, "JWT proof should verify correctly");
 
+    // Convert parameters to the correct types for prepare_public_inputs
+    let jwt_pubkey = {
+        use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
+        let modulus_bytes = BASE64_URL_SAFE_NO_PAD.decode(&pubkey.n).unwrap();
+        BigUint::from_bytes_be(&modulus_bytes)
+    };
+    let ephemeral_pubkey_biguint = BigUint::from_str(ephemeral_pubkey).unwrap();
+    let parsed_ephemeral_pubkey_expiry: DateTime<Utc> = ephemeral_expiry.parse().unwrap();
+
+    // Extract public inputs from the proof
+    let public_inputs_vec = prepare_public_inputs(
+        jwt_pubkey,
+        domain.clone(),
+        ephemeral_pubkey_biguint,
+        parsed_ephemeral_pubkey_expiry,
+    );
+
+    // Convert Vec<String> to Vec<FixedBytes<32>> for the contract call
+    let public_inputs: Vec<FixedBytes<32>> = public_inputs_vec
+        .iter()
+        .map(|s| {
+            let trimmed = s.trim_start_matches("0x");
+            FixedBytes::from_hex(trimmed).unwrap_or_else(|_| FixedBytes::ZERO)
+        })
+        .collect();
+
+    println!("public_inputs: {:?}", public_inputs);
+
     println!("✅ Proof generation test completed successfully");
-    proof
+
+    // Return the proof and public inputs
+    (proof, public_inputs)
 }
