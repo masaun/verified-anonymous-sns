@@ -283,7 +283,7 @@ async fn fetch_google_public_key(key_id: &str) -> Result<Option<GooglePublicKey>
     Ok(key)
 }
 
-fn pubkey_modulus_from_jwk(jwk_n: &String) -> Result<BigUint, Box<dyn std::error::Error>> {
+pub fn pubkey_modulus_from_jwk(jwk_n: &String) -> Result<BigUint, Box<dyn std::error::Error>> {
     // Decode base64url `n` (modulus)
     let modulus_bytes = BASE64_URL_SAFE_NO_PAD.decode(&jwk_n)?;
     let modulus = BigUint::from_bytes_be(&modulus_bytes);

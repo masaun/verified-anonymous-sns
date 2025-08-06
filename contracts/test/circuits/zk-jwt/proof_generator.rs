@@ -27,6 +27,7 @@ use mopro_bindings::{
     verify_jwt_proof,
     proof::jwt_proof::{
         prepare_public_inputs,
+        pubkey_modulus_from_jwk,
         generate_inputs,
         verify_jwt, // @dev - verify_jwt() is in the proof::jwt_proof module
         JsonWebKey,
@@ -110,18 +111,19 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
     assert!(verified, "JWT proof should verify correctly");
 
     // Convert parameters to the correct types for prepare_public_inputs
-    let jwt_pubkey = {
-        use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
-        let modulus_bytes = BASE64_URL_SAFE_NO_PAD.decode(&pubkey.n).unwrap();
-        BigUint::from_bytes_be(&modulus_bytes)
-    };
-    let ephemeral_pubkey_biguint = BigUint::from_str(ephemeral_pubkey).unwrap();
-    let parsed_ephemeral_pubkey_expiry: DateTime<Utc> = ephemeral_expiry.parse().unwrap();
+    let jwt_pubkey = pubkey_modulus_from_jwk(&google_jwt_pubkey_modulus).unwrap();
+    // let jwt_pubkey = {
+    //     use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
+    //     let modulus_bytes = BASE64_URL_SAFE_NO_PAD.decode(&pubkey.n).unwrap();
+    //     BigUint::from_bytes_be(&modulus_bytes)
+    // };
+    let ephemeral_pubkey_biguint = BigUint::from_str(&ephemeral_pubkey).unwrap();
+    let parsed_ephemeral_pubkey_expiry: DateTime<Utc> = ephemeral_expiry.parse::<DateTime<Utc>>().expect("Invalid datetime format");
 
     // Extract public inputs from the proof
     let public_inputs_vec = prepare_public_inputs(
         jwt_pubkey,
-        domain.clone(),
+        domain,
         ephemeral_pubkey_biguint,
         parsed_ephemeral_pubkey_expiry,
     );
