@@ -129,7 +129,8 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     
     // 7. Call the verifier contract (expecting it to fail gracefully)
     println!("🔄 Calling verifier with a proof and publicInputs (testing contract interaction)...");
-    let result = honk_verifier.verify(proof_bytes, empty_public_inputs).call().await;
+    let is_valid = honk_verifier.verify(proof_bytes, public_inputs).call().await;
+    println!("🔄 is_valid: {:?}", is_valid);
     
     println!("✅ Contract deployment and interaction test completed");
     println!("💡 Next step: Implement real proof generation with actual JWT data");
