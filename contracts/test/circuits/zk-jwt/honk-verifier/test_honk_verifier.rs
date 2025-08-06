@@ -124,17 +124,22 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     // 4. Converting JWTCircuitInputs to HashMap<String, Vec<String>> format
     
     // Convert proof from Vec<u8> to Bytes for contract call
-    let proof_bytes = Bytes::from(proof);
-    let empty_public_inputs: Vec<FixedBytes<32>> = vec![];
+    let proof_bytes = Bytes::from(proof.clone());
+    
+    // Debug information
+    println!("🔍 Debug information:");
+    println!("  - Proof length: {} bytes", proof.len());
+    println!("  - Proof first 32 bytes: {:?}", &proof[..std::cmp::min(32, proof.len())]);
+    println!("  - Public inputs count: {}", public_inputs.len());
+    if !public_inputs.is_empty() {
+        println!("  - First public input: {:?}", public_inputs[0]);
+    }
     
     // 7. Call the verifier contract (expecting it to fail gracefully)
     println!("🔄 Calling verifier with a proof and publicInputs (testing contract interaction)...");
     let is_valid = honk_verifier.verify(proof_bytes, public_inputs).call().await;
     println!("🔄 is_valid: {:?}", is_valid);
-    
-    println!("✅ Contract deployment and interaction test completed");
-    println!("💡 Next step: Implement real proof generation with actual JWT data");
-    
+        
     println!("✅ Honk verifier setup test completed successfully");
     Ok(())
 }

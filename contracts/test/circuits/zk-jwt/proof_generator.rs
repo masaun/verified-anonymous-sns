@@ -98,7 +98,10 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
         pubkey_str,
         domain.clone(),
     );
-    println!("proof: {:?}", proof);
+    println!("🔄 Generated proof: {:?}", proof);
+    println!("🔍 Proof details:");
+    println!("  - Raw proof length: {} bytes", proof.len());
+    println!("  - Raw proof first 64 bytes: {:02x?}", &proof[..std::cmp::min(64, proof.len())]);
     assert!(!proof.is_empty(), "Proof should not be empty");
 
     // Call verify_jwt as before
