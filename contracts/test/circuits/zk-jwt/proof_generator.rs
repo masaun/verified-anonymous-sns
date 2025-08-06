@@ -50,7 +50,7 @@ sol! {
 //
 // function verify(bytes calldata proof, bytes32[] calldata publicInputs) public view override returns (bool) {
 
-pub async fn generation_proof() -> eyre::Result<()> {
+pub async fn generate_proof() -> Vec<u8> {
     // Test proof generation using imported functions from parent crate
     println!("🔄 Starting proof generation...");
 
@@ -97,10 +97,10 @@ pub async fn generation_proof() -> eyre::Result<()> {
     assert!(!proof.is_empty(), "Proof should not be empty");
 
     // Call verify_jwt as before
-    let verified = verify_jwt(srs_path, proof);
+    let verified = verify_jwt(srs_path, proof.clone());
     println!("verified: {:?}", verified);
     assert!(verified, "JWT proof should verify correctly");
 
     println!("✅ Proof generation test completed successfully");
-    Ok(())
+    proof
 }

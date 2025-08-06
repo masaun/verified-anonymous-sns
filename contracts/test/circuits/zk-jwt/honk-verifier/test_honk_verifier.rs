@@ -22,7 +22,7 @@ use alloy_node_bindings::Anvil;
 // @dev - Load the proof_generator module
 #[path = "../proof_generator.rs"]
 mod proof_generator;
-use proof_generator::generation_proof;
+use proof_generator::generate_proof;
 
 // @dev - Imports the following modules for proof/input generation from the parent crate (./src/proof/) directory.
 // @dev - "mopro_bindings" would be the parent crate "name", which is defined as the "[lib]" in the Cargo.toml of the parent crate directory. 
@@ -121,7 +121,7 @@ async fn test_proof_generation() -> eyre::Result<()> {
 #[tokio::test(flavor = "current_thread")]
 async fn test_honk_verifier() -> eyre::Result<()> {
     // 1. Generate a proof
-    let proof = generation_proof().await?;
+    let proof: Vec<u8> = proof_generator::generate_proof().await;
     println!("🔄 Generated proof: {:?}", proof);
 
     // 2. Start Anvil (local test network)
