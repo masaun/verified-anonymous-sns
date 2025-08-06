@@ -111,6 +111,7 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
     assert!(verified, "JWT proof should verify correctly");
 
     // Convert parameters to the correct types for prepare_public_inputs
+    let google_jwt_pubkey_modulus = &pubkey.n;
     let jwt_pubkey = pubkey_modulus_from_jwk(&google_jwt_pubkey_modulus).unwrap();
     // let jwt_pubkey = {
     //     use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
