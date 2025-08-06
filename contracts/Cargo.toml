@@ -16,6 +16,10 @@ path = "test/examples/test_storage.rs"
 name = "test_honk_verifier"
 path = "test/circuits/zk-jwt/honk-verifier/test_honk_verifier.rs"
 
+[[test]]
+name = "test_proof_generation"
+path = "test/circuits/zk-jwt/test_proof_generation.rs"
+
 [dependencies]
 tokio = { version = "1.0", features = ["full"] }
 eyre = "0.6"
