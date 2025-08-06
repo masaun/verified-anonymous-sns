@@ -120,23 +120,13 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     // 3. SRS file path
     // 4. Converting JWTCircuitInputs to HashMap<String, Vec<String>> format
     
-    let empty_proof = Bytes::from_hex("0x")?;
+    // Convert proof from Vec<u8> to Bytes for contract call
+    let proof_bytes = Bytes::from(proof);
     let empty_public_inputs: Vec<FixedBytes<32>> = vec![];
     
     // 7. Call the verifier contract (expecting it to fail gracefully)
-    println!("🔄 Calling verifier with empty proof (testing contract interaction)...");
-    let result = honk_verifier.verify(empty_proof, empty_public_inputs).call().await;
-    
-    match result {
-        Ok(is_valid) => {
-            println!("✅ Contract call succeeded, verification result: {}", is_valid);
-            println!("⚠️  Note: Empty proof should normally be invalid");
-        }
-        Err(e) => {
-            println!("❌ Verification call failed as expected: {:?}", e);
-            println!("✅ Contract interaction working (revert expected for empty proof)");
-        }
-    }
+    println!("🔄 Calling verifier with a proof and publicInputs (testing contract interaction)...");
+    let result = honk_verifier.verify(proof_bytes, empty_public_inputs).call().await;
     
     println!("✅ Contract deployment and interaction test completed");
     println!("💡 Next step: Implement real proof generation with actual JWT data");
