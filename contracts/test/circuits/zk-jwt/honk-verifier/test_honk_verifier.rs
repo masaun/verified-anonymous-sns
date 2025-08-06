@@ -58,8 +58,11 @@ sol! {
 #[tokio::test(flavor = "current_thread")]
 async fn test_honk_verifier() -> eyre::Result<()> {
     // 1. Generate a proof
-    let proof: Vec<u8> = proof_generator::generate_proof().await;
+    let proof: Vec<u8>;
+    let public_inputs: Vec<FixedBytes<32>>;
+    (proof, public_inputs) = proof_generator::generate_proof().await;
     println!("🔄 Generated proof: {:?}", proof);
+    println!("🔄 Generated public inputs: {:?}", public_inputs);
 
     // 2. Start Anvil (local test network)
     let anvil = Anvil::new().spawn();

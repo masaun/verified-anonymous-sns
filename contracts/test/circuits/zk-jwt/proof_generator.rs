@@ -50,7 +50,7 @@ sol! {
 //
 // function verify(bytes calldata proof, bytes32[] calldata publicInputs) public view override returns (bool) {
 
-pub async fn generate_proof() -> Vec<u8> {
+pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
     // Test proof generation using imported functions from parent crate
     println!("🔄 Starting proof generation...");
 
@@ -101,6 +101,15 @@ pub async fn generate_proof() -> Vec<u8> {
     println!("verified: {:?}", verified);
     assert!(verified, "JWT proof should verify correctly");
 
+    // Get the verification key
+    //let vk = get_honk_verification_key(BYTECODE).unwrap();
+
+    // Extract public inputs from the proof
+    let public_inputs: Vec<FixedBytes<32>> = proof.get_public_inputs(); // Hypothetical method
+    println!("public_inputs: {:?}", public_inputs);
+
     println!("✅ Proof generation test completed successfully");
-    proof
+
+    // Return the proof and public inputs
+    (proof, public_inputs)
 }
