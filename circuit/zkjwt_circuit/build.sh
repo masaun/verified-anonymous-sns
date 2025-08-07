@@ -5,12 +5,17 @@ echo "Circuit version: $VERSION"
 # Extract version from Nargo.toml
 rm -rf target
 
-# Align the Noir/Nargo version and bb.js version of the local machine.
-echo "Update the bb.js version of the local machine to v0.85.0..."
-bbup --version 0.85.0
+# Install Noir/Nargo
+echo "Installing Noir/Nargo v1.0.0-beta.3..."
+noirup --version 1.0.0-beta.3
 
-echo "Check the Noir/Nargo version of the local machine (This version is supposed to be v1.0.0-beta.6)..."
+# Align the Noir/Nargo version (1.0.0-beta.3) and bb.js version (>= 0.84.0) of the local machine.
+echo "Update the bb.js version of the local machine to v0.84.0..."
+bbup --version 0.84.0
+
+echo "Check the Noir/Nargo version and bb.js version of the local machine (This version is supposed to be v1.0.0-beta.3 / v0.84.0)..."
 nargo -V
+bb -V
 
 echo "Compiling circuit..."
 if ! nargo compile; then

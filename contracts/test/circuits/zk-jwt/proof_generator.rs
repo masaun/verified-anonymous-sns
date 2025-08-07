@@ -13,7 +13,7 @@ use alloy::{
     signers::local::PrivateKeySigner,
     sol,
     primitives::{Bytes, FixedBytes},
-    hex::FromHex,
+    hex::{FromHex, encode as hex_encode},
     rpc::types::TransactionRequest,
     network::TransactionBuilder,
 };
@@ -107,8 +107,15 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
 
     // Call verify_jwt as before
     let verified = verify_jwt(srs_path, proof.clone());
-    println!("verified: {:?}", verified);
-    assert!(verified, "JWT proof should verify correctly");
+    println!("✅ Mopro verification result: {:?}", verified);
+    assert!(verified, "JWT proof should verify correctly\n");
+
+    println!("📊 Proof format analysis:");
+    println!("  - Total proof size: {} bytes", proof.len());
+    println!("  - Proof format (first 128 bytes): {}", alloy::hex::encode(&proof[..std::cmp::min(128, proof.len())]));
+    if proof.len() > 128 {
+        println!("  - Proof format (last 64 bytes): {}", alloy::hex::encode(&proof[proof.len()-64..]));
+    }
 
     // Convert parameters to the correct types for prepare_public_inputs
     let google_jwt_pubkey_modulus = &pubkey.n;
@@ -128,7 +135,7 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
         ephemeral_pubkey_biguint,
         parsed_ephemeral_pubkey_expiry,
     );
-    println!("public_inputs_vec: {:?}", public_inputs_vec);
+    println!("public_inputs_vec: {:?}\n", public_inputs_vec);
 
     // Convert Vec<String> to Vec<FixedBytes<32>> for the contract call
     let public_inputs: Vec<FixedBytes<32>> = public_inputs_vec
@@ -139,7 +146,7 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
         })
         .collect();
 
-    println!("public_inputs: {:?}", public_inputs);
+    println!("public_inputs: {:?}\n", public_inputs);
 
     println!("✅ Proof generation test completed successfully");
 

@@ -61,8 +61,8 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     let proof: Vec<u8>;
     let public_inputs: Vec<FixedBytes<32>>;
     (proof, public_inputs) = proof_generator::generate_proof().await;
-    //println!("🔄 Generated proof: {:?}", proof);
-    //println!("🔄 Generated public inputs: {:?}", public_inputs);
+    println!("🔄 Generated proof: {:?}", proof);
+    println!("🔄 Generated public inputs: {:?}", public_inputs);
 
     // 2. Start Anvil (local test network)
     let anvil = Anvil::new().spawn();
@@ -130,14 +130,36 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     println!("🔍 Debug information:");
     println!("  - Proof length: {} bytes", proof.len());
     println!("  - Proof first 32 bytes: {:?}", &proof[..std::cmp::min(32, proof.len())]);
+    println!("  - Proof bytes (hex): 0x{}", hex::encode(&proof[..std::cmp::min(64, proof.len())]));
     println!("  - Public inputs count: {}", public_inputs.len());
     if !public_inputs.is_empty() {
         println!("  - First public input: {:?}", public_inputs[0]);
+        println!("  - First public input (hex): 0x{}", hex::encode(public_inputs[0].as_slice()));
     }
+    
+    // Try to identify what the error means
+    println!("🔍 Contract verification attempt:");
     
     // 7. Call the verifier contract (expecting it to fail gracefully)
     println!("🔄 Calling verifier with a proof and publicInputs (testing contract interaction)...");
     let is_valid = honk_verifier.verify(proof_bytes, public_inputs).call().await;
+    
+    match &is_valid {
+        Ok(result) => {
+            println!("✅ Contract call succeeded: {}", result);
+        }
+        Err(e) => {
+            println!("❌ Contract call failed: {:?}", e);
+            println!("🔍 Error analysis:");
+            println!("  - This is likely a proof verification failure");
+            println!("  - Error 0xed74ac0a might indicate:");
+            println!("    * Proof format mismatch");
+            println!("    * Wrong public inputs");
+            println!("    * Verification key mismatch");
+            println!("    * Invalid proof data");
+        }
+    }
+    
     println!("🔄 is_valid: {:?}", is_valid);
         
     println!("✅ Honk verifier setup test completed successfully");
