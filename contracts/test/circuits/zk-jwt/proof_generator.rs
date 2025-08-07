@@ -128,6 +128,7 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
         ephemeral_pubkey_biguint,
         parsed_ephemeral_pubkey_expiry,
     );
+    println!("public_inputs_vec: {:?}", public_inputs_vec);
 
     // Convert Vec<String> to Vec<FixedBytes<32>> for the contract call
     let public_inputs: Vec<FixedBytes<32>> = public_inputs_vec

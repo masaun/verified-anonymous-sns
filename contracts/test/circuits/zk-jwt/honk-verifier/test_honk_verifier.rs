@@ -61,8 +61,8 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     let proof: Vec<u8>;
     let public_inputs: Vec<FixedBytes<32>>;
     (proof, public_inputs) = proof_generator::generate_proof().await;
-    println!("🔄 Generated proof: {:?}", proof);
-    println!("🔄 Generated public inputs: {:?}", public_inputs);
+    //println!("🔄 Generated proof: {:?}", proof);
+    //println!("🔄 Generated public inputs: {:?}", public_inputs);
 
     // 2. Start Anvil (local test network)
     let anvil = Anvil::new().spawn();
