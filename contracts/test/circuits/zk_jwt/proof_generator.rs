@@ -13,7 +13,7 @@ use alloy::{
     signers::local::PrivateKeySigner,
     sol,
     primitives::{Bytes, FixedBytes},
-    hex::FromHex,
+    hex::{FromHex, encode as hex_encode},
     rpc::types::TransactionRequest,
     network::TransactionBuilder,
 };
@@ -27,6 +27,7 @@ use mopro_bindings::{
     verify_jwt_proof,
     proof::jwt_proof::{
         prepare_public_inputs,
+        pubkey_modulus_from_jwk,
         generate_inputs,
         verify_jwt, // @dev - verify_jwt() is in the proof::jwt_proof module
         JsonWebKey,
@@ -98,30 +99,43 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
         pubkey_str,
         domain.clone(),
     );
-    println!("proof: {:?}", proof);
+    println!("🔄 Generated proof: {:?}", proof);
+    println!("🔍 Proof details:");
+    println!("  - Raw proof length: {} bytes", proof.len());
+    println!("  - Raw proof first 64 bytes: {:02x?}", &proof[..std::cmp::min(64, proof.len())]);
     assert!(!proof.is_empty(), "Proof should not be empty");
 
     // Call verify_jwt as before
     let verified = verify_jwt(srs_path, proof.clone());
-    println!("verified: {:?}", verified);
-    assert!(verified, "JWT proof should verify correctly");
+    println!("✅ Mopro verification result: {:?}", verified);
+    assert!(verified, "JWT proof should verify correctly\n");
+
+    println!("📊 Proof format analysis:");
+    println!("  - Total proof size: {} bytes", proof.len());
+    println!("  - Proof format (first 128 bytes): {}", alloy::hex::encode(&proof[..std::cmp::min(128, proof.len())]));
+    if proof.len() > 128 {
+        println!("  - Proof format (last 64 bytes): {}", alloy::hex::encode(&proof[proof.len()-64..]));
+    }
 
     // Convert parameters to the correct types for prepare_public_inputs
-    let jwt_pubkey = {
-        use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
-        let modulus_bytes = BASE64_URL_SAFE_NO_PAD.decode(&pubkey.n).unwrap();
-        BigUint::from_bytes_be(&modulus_bytes)
-    };
-    let ephemeral_pubkey_biguint = BigUint::from_str(ephemeral_pubkey).unwrap();
-    let parsed_ephemeral_pubkey_expiry: DateTime<Utc> = ephemeral_expiry.parse().unwrap();
+    let google_jwt_pubkey_modulus = &pubkey.n;
+    let jwt_pubkey = pubkey_modulus_from_jwk(&google_jwt_pubkey_modulus).unwrap();
+    // let jwt_pubkey = {
+    //     use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
+    //     let modulus_bytes = BASE64_URL_SAFE_NO_PAD.decode(&pubkey.n).unwrap();
+    //     BigUint::from_bytes_be(&modulus_bytes)
+    // };
+    let ephemeral_pubkey_biguint = BigUint::from_str(&ephemeral_pubkey).unwrap();
+    let parsed_ephemeral_pubkey_expiry: DateTime<Utc> = ephemeral_expiry.parse::<DateTime<Utc>>().expect("Invalid datetime format");
 
     // Extract public inputs from the proof
     let public_inputs_vec = prepare_public_inputs(
         jwt_pubkey,
-        domain.clone(),
+        domain,
         ephemeral_pubkey_biguint,
         parsed_ephemeral_pubkey_expiry,
     );
+    println!("public_inputs_vec: {:?}\n", public_inputs_vec);
 
     // Convert Vec<String> to Vec<FixedBytes<32>> for the contract call
     let public_inputs: Vec<FixedBytes<32>> = public_inputs_vec
@@ -132,7 +146,7 @@ pub async fn generate_proof() -> (Vec<u8>, Vec<FixedBytes<32>>) {
         })
         .collect();
 
-    println!("public_inputs: {:?}", public_inputs);
+    println!("public_inputs: {:?}\n", public_inputs);
 
     println!("✅ Proof generation test completed successfully");
 

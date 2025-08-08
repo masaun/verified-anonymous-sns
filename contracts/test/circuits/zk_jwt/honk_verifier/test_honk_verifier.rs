@@ -124,16 +124,58 @@ async fn test_honk_verifier() -> eyre::Result<()> {
     // 4. Converting JWTCircuitInputs to HashMap<String, Vec<String>> format
     
     // Convert proof from Vec<u8> to Bytes for contract call
-    let proof_bytes = Bytes::from(proof);
-    let empty_public_inputs: Vec<FixedBytes<32>> = vec![];
+    let proof_bytes = Bytes::from(proof.clone());
+    
+    // Debug information
+    println!("🔍 Debug information:");
+    println!("  - Proof length: {} bytes", proof.len());
+    println!("  - Proof first 32 bytes: {:?}", &proof[..std::cmp::min(32, proof.len())]);
+    println!("  - Proof bytes (hex): 0x{}", hex::encode(&proof[..std::cmp::min(64, proof.len())]));
+    println!("  - Public inputs count: {}", public_inputs.len());
+    if !public_inputs.is_empty() {
+        println!("  - First public input: {:?}", public_inputs[0]);
+        println!("  - First public input (hex): 0x{}", hex::encode(public_inputs[0].as_slice()));
+    }
+    
+    // Try to identify what the error means
+    println!("🔍 Contract verification attempt:");
     
     // 7. Call the verifier contract (expecting it to fail gracefully)
     println!("🔄 Calling verifier with a proof and publicInputs (testing contract interaction)...");
-    let result = honk_verifier.verify(proof_bytes, empty_public_inputs).call().await;
+    let is_valid = honk_verifier.verify(proof_bytes, public_inputs).call().await;
     
-    println!("✅ Contract deployment and interaction test completed");
-    println!("💡 Next step: Implement real proof generation with actual JWT data");
+    match &is_valid {
+        Ok(result) => {
+            println!("✅ Contract call succeeded: {}", result);
+        }
+        Err(e) => {
+            println!("❌ Contract call failed: {:?}", e);
+            println!("🔍 Error analysis for 0xed74ac0a:");
+            println!("  - This error code doesn't match any standard Solidity errors");
+            println!("  - Known errors in HonkVerifier:");
+            println!("    * ProofLengthWrong: 0xd0e50be7");
+            println!("    * PublicInputsLengthWrong: 0x2e815f18");  
+            println!("    * SumcheckFailed: 0xff63caf8");
+            println!("    * ShpleminiFailed: 0xb96ecf7f");
+            println!("  - Error 0xed74ac0a likely comes from:");
+            println!("    * Deep verification logic (sumcheck/shplemini algorithms)");
+            println!("    * Assembly code within the verifier");
+            println!("    * Proof format incompatibility with contract expectations");
+            println!("    * Internal library error from Barretenberg/Noir verification");
+            println!("  - DIAGNOSIS: Mopro proof format may be incompatible with this Honk verifier");
+        }
+    }
     
+    println!("🔄 is_valid: {:?}", is_valid);
+    
+    // Additional debugging: Let's test if the issue is proof-specific
+    println!("\\n🔍 DIAGNOSIS SUMMARY:");
+    println!("  - PROOF_SIZE: Fixed (526 field elements = {} bytes)", proof.len());
+    println!("  - Contract deployment: Success");
+    println!("  - Error 0xed74ac0a: Unknown error from verification logic");
+    println!("  - LIKELY CAUSE: Mopro proof format incompatible with Solidity Honk verifier");
+    println!("  - NEXT STEPS: Verify proof format compatibility or generate proof in Barretenberg format");
+        
     println!("✅ Honk verifier setup test completed successfully");
     Ok(())
 }
