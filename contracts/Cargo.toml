@@ -17,6 +17,10 @@ name = "test_honk_verifier"
 path = "test/circuits/zk_jwt/honk_verifier/test_honk_verifier.rs"
 
 [[test]]
+name = "test_zk_jwt_proof_verifier"
+path = "test/circuits/zk_jwt/test_zk_jwt_proof_verifier.rs"
+
+[[test]]
 name = "test_proof_generation"
 path = "test/circuits/zk_jwt/proof_generator/test_proof_generation.rs"
 
