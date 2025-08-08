@@ -46,6 +46,12 @@ sol! {
     "out/ZkJwtProofVerifier.sol/ZkJwtProofVerifier.json"
 }
 
+sol! {
+    #[sol(rpc)]  
+    HonkVerifier,
+    "out/honk_vk.sol/HonkVerifier.json"
+}
+
 #[tokio::test(flavor = "current_thread")]
 async fn test_zk_jwt_proof_verifier() -> eyre::Result<()> {
     // 1. Generate a proof
@@ -59,50 +65,49 @@ async fn test_zk_jwt_proof_verifier() -> eyre::Result<()> {
     let anvil = Anvil::new().spawn();
     println!("✅ Anvil running at: {}", anvil.endpoint());
 
-    // Create a signer using one of Anvil's default private keys (NOTE: The PK hardcoded here is just an example PK)
+    // Create a signer using one of Anvil's default private keys
     let signer: PrivateKeySigner = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80".parse()?;
-    let signer_clone = signer.clone();
     
     // Create provider with wallet  
     let provider = ProviderBuilder::new()
         .with_gas_estimation()
-        .wallet(signer_clone)
+        .wallet(signer.clone())
         .on_http(anvil.endpoint_url());
 
-    // 3. Test that we can read the contract artifact
-    let zk_jwt_proof_verifier_contract_json = std::fs::read_to_string("out/ZkJwtProofVerifier.sol/ZkJwtProofVerifier.json")?;
-    let zk_jwt_proof_verifier_contract_artifact: serde_json::Value = serde_json::from_str(&zk_jwt_proof_verifier_contract_json)?;
-
-    let bytecode_hex = zk_jwt_proof_verifier_contract_artifact["bytecode"]["object"]
+    // 3. Deploy HonkVerifier first
+    let honk_verifier_json = std::fs::read_to_string("out/honk_vk.sol/HonkVerifier.json")?;
+    let honk_verifier_artifact: serde_json::Value = serde_json::from_str(&honk_verifier_json)?;
+    let honk_bytecode_hex = honk_verifier_artifact["bytecode"]["object"]
         .as_str()
-        .ok_or_else(|| eyre::eyre!("Failed to get bytecode from contract artifact"))?;
+        .ok_or_else(|| eyre::eyre!("Failed to get HonkVerifier bytecode"))?;
+    let honk_bytecode = Bytes::from_hex(honk_bytecode_hex)?;
     
-    // Verify we can parse the bytecode
-    let bytecode = Bytes::from_hex(bytecode_hex)?;
+    let honk_deploy_tx = TransactionRequest::default().with_deploy_code(honk_bytecode);
+    let honk_receipt = provider.send_transaction(honk_deploy_tx).await?.get_receipt().await?;
+    let honk_address = honk_receipt.contract_address.expect("HonkVerifier deployment failed");
     
-    println!("✅ Successfully parsed contract artifact");
-    println!("✅ Bytecode length: {} characters", bytecode_hex.len());
-    
-    // 4. Deploy the contract using the bytecode
-    let deploy_tx = TransactionRequest::default().with_deploy_code(bytecode);
-    let receipt = provider.send_transaction(deploy_tx).await?.get_receipt().await?;
-    let contract_address = receipt.contract_address.expect("Contract deployment failed");
-    
-    println!("✅ Contract deployed successfully at: {:?}", contract_address);
+    let honk_verifier = HonkVerifier::new(honk_address, &provider);
+    println!("✅ HonkVerifier deployed at: {:?}", honk_address);
 
-    // 5. Create a contract instance and test it
-    // Note: The sol! macro generates bindings differently in Alloy 1.0
-    // TODO: Fix contract instantiation for Alloy 1.0
-    // In Alloy 1.0, the sol! macro doesn't generate a `new` function like this
-    // Need to use the correct API for contract instantiation
-    // 
-    // Correct approach for Alloy 1.0 (research needed):
-    // - Use contract instance creation with deployed address
-    // - Call contract methods through the generated interface
-    // - Example: let contract = HonkVerifier::new(contract_address, provider.clone());
-    //
-    let zk_jwt_proof_verifier = ZkJwtProofVerifier::new(contract_address, &provider);
-    println!("📝 Contract address for future use: {:?}", contract_address);
+    // 4. Deploy ZkJwtProofVerifier with HonkVerifier address as constructor parameter
+    let zk_jwt_proof_verifier_json = std::fs::read_to_string("out/ZkJwtProofVerifier.sol/ZkJwtProofVerifier.json")?;
+    let zk_jwt_proof_verifier_artifact: serde_json::Value = serde_json::from_str(&zk_jwt_proof_verifier_json)?;
+    let zk_bytecode_hex = zk_jwt_proof_verifier_artifact["bytecode"]["object"]
+        .as_str()
+        .ok_or_else(|| eyre::eyre!("Failed to get ZkJwtProofVerifier bytecode"))?;
+    
+    // Append constructor parameter (HonkVerifier address) to bytecode
+    let mut zk_deploy_bytecode = Bytes::from_hex(zk_bytecode_hex)?.to_vec();
+    let mut constructor_arg = [0u8; 32];
+    constructor_arg[12..].copy_from_slice(honk_address.as_slice());
+    zk_deploy_bytecode.extend_from_slice(&constructor_arg);
+    
+    let zk_deploy_tx = TransactionRequest::default().with_deploy_code(Bytes::from(zk_deploy_bytecode));
+    let zk_receipt = provider.send_transaction(zk_deploy_tx).await?.get_receipt().await?;
+    let zk_contract_address = zk_receipt.contract_address.expect("ZkJwtProofVerifier deployment failed");
+    
+    let zk_jwt_proof_verifier = ZkJwtProofVerifier::new(zk_contract_address, &provider);
+    println!("✅ ZkJwtProofVerifier deployed at: {:?}", zk_contract_address);
     
     // 6. For now, test with empty proof (since we need actual JWT data to generate real proofs)
     println!("🔄 Testing verifier with empty proof (expected to fail gracefully)...");
@@ -149,3 +154,50 @@ async fn test_zk_jwt_proof_verifier() -> eyre::Result<()> {
     println!("✅ Honk verifier setup test completed successfully");
     Ok(())
 }
+
+
+
+// @notice - Deploys the HonkVerifier contract and returns an instance of it.
+
+// async fn deploy_honk_verifier() -> HonkVerifier {
+//     // 2. Start Anvil (local test network)
+//     let anvil = Anvil::new().spawn();
+//     println!("✅ Anvil running at: {}", anvil.endpoint());
+
+//     // Create a signer using one of Anvil's default private keys (NOTE: The PK hardcoded here is just an example PK)
+//     let signer: PrivateKeySigner = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80".parse()?;
+//     let signer_clone = signer.clone();
+    
+//     // Create provider with wallet  
+//     let provider = ProviderBuilder::new()
+//         .with_gas_estimation()
+//         .wallet(signer_clone)
+//         .on_http(anvil.endpoint_url());
+
+//     // 3. Test that we can read the contract artifact
+//     let honk_verifier_contract_json = std::fs::read_to_string("out/honk_vk.sol/HonkVerifier.json")?;
+//     let honk_verifier_contract_artifact: serde_json::Value = serde_json::from_str(&honk_verifier_contract_json)?;
+    
+//     let bytecode_hex = honk_verifier_contract_artifact["bytecode"]["object"]
+//         .as_str()
+//         .ok_or_else(|| eyre::eyre!("Failed to get bytecode from contract artifact"))?;
+    
+//     // Verify we can parse the bytecode
+//     let bytecode = Bytes::from_hex(bytecode_hex)?;
+    
+//     println!("✅ Successfully parsed contract artifact");
+//     println!("✅ Bytecode length: {} characters", bytecode_hex.len());
+    
+//     // 4. Deploy the contract using the bytecode
+//     let deploy_tx = TransactionRequest::default().with_deploy_code(bytecode);
+//     let receipt = provider.send_transaction(deploy_tx).await?.get_receipt().await?;
+//     let contract_address = receipt.contract_address.expect("Contract deployment failed");
+    
+//     println!("✅ Contract deployed successfully at: {:?}", contract_address);
+
+//     // 5. Create a contract instance and test it
+//     let honk_verifier = HonkVerifier::new(contract_address, &provider);
+//     println!("📝 Contract address for future use: {:?}", contract_address);
+
+//     honk_verifier
+// }
