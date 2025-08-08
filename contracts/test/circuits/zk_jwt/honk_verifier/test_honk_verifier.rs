@@ -20,7 +20,7 @@ use alloy::{
 use alloy_node_bindings::Anvil;
 
 // @dev - Load the proof_generator module
-#[path = "../proof_generator.rs"]
+#[path = "../proof_generator/proof_generator.rs"]
 mod proof_generator;
 use proof_generator::generate_proof;
 
