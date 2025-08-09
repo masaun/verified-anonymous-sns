@@ -13,6 +13,10 @@ name = "test_storage"
 path = "test/examples/test_storage.rs"
 
 [[test]]
+name = "test_proof_generation"
+path = "test/circuits/zk_jwt/proof_generator/test_proof_generation.rs"
+
+[[test]]
 name = "test_honk_verifier"
 path = "test/circuits/zk_jwt/honk_verifier/test_honk_verifier.rs"
 
@@ -21,8 +25,8 @@ name = "test_zk_jwt_proof_verifier"
 path = "test/circuits/zk_jwt/test_zk_jwt_proof_verifier.rs"
 
 [[test]]
-name = "test_proof_generation"
-path = "test/circuits/zk_jwt/proof_generator/test_proof_generation.rs"
+name = "test_zk_jwt_proof_manager"
+path = "test/circuits/zk_jwt/test_zk_jwt_proof_manager.rs"
 
 [dependencies]
 tokio = { version = "1.0", features = ["full"] }

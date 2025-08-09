@@ -31,6 +31,18 @@ sh test/circuits/zk_jwt/test_zk_jwt_proof_verifier.sh
 
 <br>
 
+- Run the `test_zk_jwt_proof_manager.rs`
+```bash
+cd contracts
+sh test/circuits/zk_jwt/test_zk_jwt_proof_manager.sh
+
+(Or, cargo test --test test_zk_jwt_proof_manager -- --show-output)
+```
+
+<br>
+
+## Proof Geration Test in `Rust`
+
 - Run the `test_proof_generation.rs`
 ```bash
 cd contracts
