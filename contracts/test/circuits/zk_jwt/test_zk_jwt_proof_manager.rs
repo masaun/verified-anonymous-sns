@@ -84,13 +84,13 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     let zk_jwt_proof_verifier_address = deploy_zk_jwt_proof_verifier(&provider).await?;
     let zk_jwt_proof_verifier = ZkJwtProofVerifier::new(zk_jwt_proof_verifier_address, &provider);
 
-    // 4. Deploy ZkJwtProofVerifier with HonkVerifier address as constructor parameter
-    let zk_jwt_proof_verifier_json = std::fs::read_to_string("out/ZkJwtProofVerifier.sol/ZkJwtProofVerifier.json")?;
-    let zk_jwt_proof_verifier_artifact: serde_json::Value = serde_json::from_str(&zk_jwt_proof_verifier_json)?;
-    let zk_bytecode_hex = zk_jwt_proof_verifier_artifact["bytecode"]["object"]
+    // 4. Deploy ZkJwtProofManager with HonkVerifier address as constructor parameter
+    let zk_jwt_proof_manager_json = std::fs::read_to_string("out/ZkJwtProofManager.sol/ZkJwtProofManager.json")?;
+    let zk_jwt_proof_manager_artifact: serde_json::Value = serde_json::from_str(&zk_jwt_proof_manager_json)?;
+    let zk_bytecode_hex = zk_jwt_proof_manager_artifact["bytecode"]["object"]
         .as_str()
-        .ok_or_else(|| eyre::eyre!("Failed to get ZkJwtProofVerifier bytecode"))?;
-    
+        .ok_or_else(|| eyre::eyre!("Failed to get ZkJwtProofManager bytecode"))?;
+
     // Append constructor parameter (HonkVerifier address) to bytecode
     let mut zk_deploy_bytecode = Bytes::from_hex(zk_bytecode_hex)?.to_vec();
     let mut constructor_arg = [0u8; 32];
@@ -99,13 +99,10 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     
     let zk_deploy_tx = TransactionRequest::default().with_deploy_code(Bytes::from(zk_deploy_bytecode));
     let zk_receipt = provider.send_transaction(zk_deploy_tx).await?.get_receipt().await?;
-    let zk_contract_address = zk_receipt.contract_address.expect("ZkJwtProofVerifier deployment failed");
-    
-    let zk_jwt_proof_verifier = ZkJwtProofVerifier::new(zk_contract_address, &provider);
-    println!("✅ ZkJwtProofVerifier deployed at: {:?}", zk_contract_address);
-    
-    // 6. For now, test with empty proof (since we need actual JWT data to generate real proofs)
-    println!("🔄 Testing verifier with empty proof (expected to fail gracefully)...");
+    let zk_contract_address = zk_receipt.contract_address.expect("ZkJwtProofManager deployment failed");
+
+    let zk_jwt_proof_manager = ZkJwtProofManager::new(zk_contract_address, &provider);
+    println!("✅ ZkJwtProofManager deployed at: {:?}", zk_contract_address);
     
     // TODO: Implement real proof generation when we have test JWT data
     // This would require:
@@ -131,9 +128,14 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     // Try to identify what the error means
     println!("🔍 Contract verification attempt:");
     
-    // 7. Call the ZkJwtProofVerifier contract (expecting it to fail gracefully)
-    println!("🔄 Calling the ZkJwtProofVerifier#verifyZkJwtProof() with a proof and publicInputs...");
-    let is_valid = zk_jwt_proof_verifier.verifyZkJwtProof(proof_bytes, public_inputs).call().await;
+    // @dev - Assuming the public inputs are already in the correct format
+    let separatedPublicInputs = mopro_bindings::proof::jwt_proof::DataType::PublicInput {
+        public_inputs: public_inputs.clone(),
+    };
+    
+    // 7. Call the ZkJwtProofManager contract (expecting it to fail gracefully)
+    println!("🔄 Calling the ZkJwtProofManager#recordPublicInputsOfZkJwtProof() with a proof and publicInputs...");
+    let is_valid = zk_jwt_proof_manager.recordPublicInputsOfZkJwtProof((proof_bytes, public_inputs, separatedPublicInputs)).call().await;
 
     match &is_valid {
         Ok(result) => {
