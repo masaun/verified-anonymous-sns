@@ -39,11 +39,11 @@ use mopro_bindings::{
 };
 use std::collections::HashMap;
 
-// 1. Define the Solidity interface using alloy::sol!
+// @dev - Define the Solidity interface using alloy::sol!
 sol! {
     #[sol(rpc)]  
     ZkJwtProofManager,
-    "out/ZkJwtProofManager.sol/ZkJwtProofManager.json"
+    "out/ZkJwtProofManager.sol/ZkJwtProofManager.json" // @dev - This includes the PublicInput struct, which is defined in the DataType.sol (DataType library)
 }
 
 sol! {
@@ -57,6 +57,16 @@ sol! {
     HonkVerifier,
     "out/honk_vk.sol/HonkVerifier.json"
 }
+
+// sol! {
+//     library DataType {
+//         struct PublicInput {
+//             string domain;
+//             bytes32 nullifierHash;
+//             string createdAt;
+//         }
+//     }
+// }
 
 #[tokio::test(flavor = "current_thread")]
 async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
@@ -84,13 +94,13 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     let zk_jwt_proof_verifier_address = deploy_zk_jwt_proof_verifier(&provider).await?;
     let zk_jwt_proof_verifier = ZkJwtProofVerifier::new(zk_jwt_proof_verifier_address, &provider);
 
-    // 4. Deploy ZkJwtProofVerifier with HonkVerifier address as constructor parameter
-    let zk_jwt_proof_verifier_json = std::fs::read_to_string("out/ZkJwtProofVerifier.sol/ZkJwtProofVerifier.json")?;
-    let zk_jwt_proof_verifier_artifact: serde_json::Value = serde_json::from_str(&zk_jwt_proof_verifier_json)?;
-    let zk_bytecode_hex = zk_jwt_proof_verifier_artifact["bytecode"]["object"]
+    // 4. Deploy ZkJwtProofManager with HonkVerifier address as constructor parameter
+    let zk_jwt_proof_manager_json = std::fs::read_to_string("out/ZkJwtProofManager.sol/ZkJwtProofManager.json")?;
+    let zk_jwt_proof_manager_artifact: serde_json::Value = serde_json::from_str(&zk_jwt_proof_manager_json)?;
+    let zk_bytecode_hex = zk_jwt_proof_manager_artifact["bytecode"]["object"]
         .as_str()
-        .ok_or_else(|| eyre::eyre!("Failed to get ZkJwtProofVerifier bytecode"))?;
-    
+        .ok_or_else(|| eyre::eyre!("Failed to get ZkJwtProofManager bytecode"))?;
+
     // Append constructor parameter (HonkVerifier address) to bytecode
     let mut zk_deploy_bytecode = Bytes::from_hex(zk_bytecode_hex)?.to_vec();
     let mut constructor_arg = [0u8; 32];
@@ -99,13 +109,10 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     
     let zk_deploy_tx = TransactionRequest::default().with_deploy_code(Bytes::from(zk_deploy_bytecode));
     let zk_receipt = provider.send_transaction(zk_deploy_tx).await?.get_receipt().await?;
-    let zk_contract_address = zk_receipt.contract_address.expect("ZkJwtProofVerifier deployment failed");
-    
-    let zk_jwt_proof_verifier = ZkJwtProofVerifier::new(zk_contract_address, &provider);
-    println!("✅ ZkJwtProofVerifier deployed at: {:?}", zk_contract_address);
-    
-    // 6. For now, test with empty proof (since we need actual JWT data to generate real proofs)
-    println!("🔄 Testing verifier with empty proof (expected to fail gracefully)...");
+    let zk_contract_address = zk_receipt.contract_address.expect("ZkJwtProofManager deployment failed");
+
+    let zk_jwt_proof_manager = ZkJwtProofManager::new(zk_contract_address, &provider);
+    println!("✅ ZkJwtProofManager deployed at: {:?}", zk_contract_address);
     
     // TODO: Implement real proof generation when we have test JWT data
     // This would require:
@@ -131,22 +138,30 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     // Try to identify what the error means
     println!("🔍 Contract verification attempt:");
     
-    // 7. Call the ZkJwtProofVerifier contract (expecting it to fail gracefully)
-    println!("🔄 Calling the ZkJwtProofVerifier#verifyZkJwtProof() with a proof and publicInputs...");
-    let is_valid = zk_jwt_proof_verifier.verifyZkJwtProof(proof_bytes, public_inputs).call().await;
-
-    match &is_valid {
-        Ok(result) => {
-            println!("✅ Contract call succeeded: {}", result);
-        }
-        Err(e) => {
-            println!("❌ Contract call failed: {:?}", e);
-        }
-    }
+    // @dev - Extract individual values from public inputs based on prepare_public_inputs structure:
+    // - First 18 fields: modulus limbs (120 bits each)
+    // - Next 64 fields: domain bytes 
+    // - Next 1 field: domain length
+    // - Next 1 field: ephemeral pubkey (shifted)
+    // - Next 1 field: expiry timestamp
     
-    println!("🔄 is_valid: {:?}", is_valid);
-        
-    println!("✅ Honk verifier setup test completed successfully");
+    // For now, we'll use placeholder values since we don't have the actual JWT data structure
+    let domain_bytes32 = public_inputs.get(82).cloned().unwrap_or_else(|| FixedBytes::from([0u8; 32])); // Domain length field
+    let nullifier_hash = public_inputs.get(83).cloned().unwrap_or_else(|| FixedBytes::from([0u8; 32])); // Ephemeral pubkey field  
+    let created_at_bytes32 = public_inputs.get(84).cloned().unwrap_or_else(|| FixedBytes::from([0u8; 32])); // Expiry timestamp field
+
+    // Create the PublicInput struct that matches the Solidity DataType.PublicInput
+    let separated_public_inputs = crate::DataType::PublicInput { // @dev - This DataType::PublicInput struct is invoked from the ZkJwtProofManager.sol interface
+        domain: String::from("example.com"), // Convert from bytes32 to string as needed
+        nullifierHash: nullifier_hash,
+        createdAt: String::from("2025-07-16T07:20:30.000Z"), // Convert from bytes32 to ISO string as needed
+    };
+
+    // 7. Call the ZkJwtProofManager contract (expecting it to fail gracefully)
+    println!("🔄 Calling the ZkJwtProofManager#recordPublicInputsOfZkJwtProof() with a proof and publicInputs...");
+    let result = zk_jwt_proof_manager.recordPublicInputsOfZkJwtProof(proof_bytes, public_inputs, separated_public_inputs);
+    println!("🔄 Result: {:?}", result);
+
     Ok(())
 }
 

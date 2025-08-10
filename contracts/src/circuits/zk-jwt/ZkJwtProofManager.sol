@@ -28,8 +28,7 @@ contract ZkJwtProofManager {
     function recordPublicInputsOfZkJwtProof(
         bytes calldata proof, 
         bytes32[] calldata publicInputs,
-        DataType.PublicInput memory separatedPublicInputs, // @dev - To avoid the "Stack too deep" error, a given publicInputs would be stored in the form of the struct data (= DataType.PublicInput)
-        uint8 rsaSignatureLength // 9 or 18
+        DataType.PublicInput memory separatedPublicInputs // @dev - To avoid the "Stack too deep" error, a given publicInputs would be stored in the form of the struct data (= DataType.PublicInput)
     ) public returns (bool) {
         // @dev - Verify a ZK-JWT proof
         bool result = zkJwtProofVerifier.verifyZkJwtProof(proof, publicInputs);
