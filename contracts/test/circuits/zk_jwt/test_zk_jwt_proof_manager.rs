@@ -128,15 +128,29 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     // Try to identify what the error means
     println!("🔍 Contract verification attempt:");
     
-    // @dev - Assuming the public inputs are already in the correct format
-    let separatedPublicInputs = mopro_bindings::proof::jwt_proof::DataType::PublicInput {
-        public_inputs: public_inputs.clone(),
+    // @dev - Extract individual values from public inputs based on prepare_public_inputs structure:
+    // - First 18 fields: modulus limbs (120 bits each)
+    // - Next 64 fields: domain bytes 
+    // - Next 1 field: domain length
+    // - Next 1 field: ephemeral pubkey (shifted)
+    // - Next 1 field: expiry timestamp
+    
+    // For now, we'll use placeholder values since we don't have the actual JWT data structure
+    let domain_bytes32 = public_inputs.get(82).cloned().unwrap_or_else(|| FixedBytes::from([0u8; 32])); // Domain length field
+    let nullifier_hash = public_inputs.get(83).cloned().unwrap_or_else(|| FixedBytes::from([0u8; 32])); // Ephemeral pubkey field  
+    let created_at_bytes32 = public_inputs.get(84).cloned().unwrap_or_else(|| FixedBytes::from([0u8; 32])); // Expiry timestamp field
+
+    // Create the PublicInput struct that matches the Solidity DataType.PublicInput
+    let separated_public_inputs = ZkJwtProofManager::DataType::PublicInput {
+        domain: String::from("example.com"), // Convert from bytes32 to string as needed
+        nullifierHash: nullifier_hash,
+        createdAt: String::from("2025-07-16T07:20:30.000Z"), // Convert from bytes32 to ISO string as needed
     };
 
     // 7. Call the ZkJwtProofManager contract (expecting it to fail gracefully)
     println!("🔄 Calling the ZkJwtProofManager#recordPublicInputsOfZkJwtProof() with a proof and publicInputs...");
-    let result = zk_jwt_proof_manager.recordPublicInputsOfZkJwtProof((proof_bytes, public_inputs, separatedPublicInputs));
-    println!("✅ Contract call succeeded: {:?}", result);
+    let result = zk_jwt_proof_manager.recordPublicInputsOfZkJwtProof(proof_bytes, public_inputs, separated_public_inputs);
+    println!("🔄 Result: {:?}", result);
 
     Ok(())
 }
