@@ -58,6 +58,12 @@ sol! {
     "out/honk_vk.sol/HonkVerifier.json"
 }
 
+// sol! {
+//     #[sol(rpc)]
+//     DataType,
+//     "out/DataType.sol/DataType.json"
+// }
+
 #[tokio::test(flavor = "current_thread")]
 async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     // 1. Generate a proof
