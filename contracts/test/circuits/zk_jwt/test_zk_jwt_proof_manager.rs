@@ -39,6 +39,25 @@ use mopro_bindings::{
 };
 use std::collections::HashMap;
 
+// Define the DataType.PublicInput struct to match the Solidity library
+// This corresponds exactly to the Solidity library structure:
+// library DataType {
+//     struct PublicInput {
+//         string domain;
+//         bytes32 nullifierHash;  
+//         string createdAt;
+//     }
+// }
+sol! {
+    library DataType {
+        struct PublicInput {
+            string domain;
+            bytes32 nullifierHash;
+            string createdAt;
+        }
+    }
+}
+
 // 1. Define the Solidity interface using alloy::sol!
 sol! {
     #[sol(rpc)]  
@@ -147,7 +166,8 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
     let created_at_bytes32 = public_inputs.get(84).cloned().unwrap_or_else(|| FixedBytes::from([0u8; 32])); // Expiry timestamp field
 
     // Create the PublicInput struct that matches the Solidity DataType.PublicInput
-    let separated_public_inputs = ZkJwtProofManager::DataType::PublicInput {
+    let separated_public_inputs = DataType::PublicInput {
+    //let separated_public_inputs = ZkJwtProofManager::DataType::PublicInput {
         domain: String::from("example.com"), // Convert from bytes32 to string as needed
         nullifierHash: nullifier_hash,
         createdAt: String::from("2025-07-16T07:20:30.000Z"), // Convert from bytes32 to ISO string as needed
