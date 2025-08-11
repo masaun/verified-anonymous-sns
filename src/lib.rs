@@ -19,7 +19,14 @@ use proof::jwt_proof::{generate_inputs, generate_jwt_proof, JsonWebKey, StorageB
 use std::{collections::HashMap, str::FromStr};
 
 mod api_server;
-pub mod proof;  // @dev - Expose the proof module for FFI and the smart contract tests.
+pub mod proof;  // @dev - Expose the proof module for the smart contract tests.
+
+// @dev - Import the smart contract modules from the ./src/smart_contracts directory
+use smart_contracts::{
+    honk_verifier::HonkVerifier,
+    zk_jwt_proof_verifier::ZkJwtProofVerifier,
+};
+
 
 #[uniffi::export]
 pub fn prove() -> bool {
