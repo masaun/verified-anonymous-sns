@@ -152,9 +152,9 @@ async fn test_zk_jwt_proof_manager() -> eyre::Result<()> {
 
     // Create the PublicInput struct that matches the Solidity DataType.PublicInput
     let separated_public_inputs = crate::DataType::PublicInput { // @dev - This DataType::PublicInput struct is invoked from the ZkJwtProofManager.sol interface
-        domain: String::from("example.com"), // Convert from bytes32 to string as needed
+        domain: String::from("example.com"),                     // @dev - [TODO]: Convert from bytes32 to string as needed - when actual JWT data is available
         nullifierHash: nullifier_hash,
-        createdAt: String::from("2025-07-16T07:20:30.000Z"), // Convert from bytes32 to ISO string as needed
+        createdAt: String::from("2025-07-16T07:20:30.000Z"),     // @dev - [TODO]: Convert from bytes32 to ISO string as needed - when actual JWT data is available 
     };
 
     // 7. Call the ZkJwtProofManager contract (expecting it to fail gracefully)
